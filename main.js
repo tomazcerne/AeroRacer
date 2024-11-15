@@ -29,10 +29,7 @@ const renderer = new UnlitRenderer(canvas);
 await renderer.initialize();
 
 const airplane = new Node();
-airplane.addComponent(new Transform({
-    rotation: quat.fromEuler(quat.create(), 0, 180, 0),
-    scale: [5, 5, 5]
-}));
+// load airplane object and texture
 airplane.addComponent(new Model({
     primitives: [
         new Primitive({
@@ -46,13 +43,28 @@ airplane.addComponent(new Model({
         }),
     ],
 }));
+// initial position: scale and rotate
+airplane.addComponent(new Transform({
+    rotation: quat.fromEuler(quat.create(), 0, 180, 0),
+    scale: [5, 5, 5]
+}));
 
+// pitch, roll, yaw controls (rotations in all directions)
+airplane.addComponent(new RotationController(airplane, canvas, {
+    pitch: 0,
+    roll: 0,
+    yaw: 0,
+    rotationSpeed: 0.25,
+})); 
+
+// initialize camera
 const camera = new Node();
+camera.addComponent(new Camera());
 camera.addComponent(new Transform({
     translation: [0, 5, 30]
 }));
-camera.addComponent(new Camera());
 
+// airplane + camera scene
 const scene = new Node();
 scene.addChild(airplane);
 scene.addChild(camera);
@@ -75,10 +87,3 @@ function resize({ displaySize: { width, height }}) {
 
 new ResizeSystem({ canvas, resize }).start();
 new UpdateSystem({ update, render }).start();
-
-// rotiranje letala
-airplane.addComponent(new RotationController(airplane, canvas, {
-    pitch: 0,
-    yaw: 0,
-    rotationSpeed: 0.25,
-})); 

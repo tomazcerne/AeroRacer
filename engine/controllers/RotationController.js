@@ -5,6 +5,7 @@ export class RotationController {
 
     constructor(node, domElement, {
         pitch = 0,
+        roll = 0,
         yaw = 0,
         rotationSpeed = 1.0,  // Controls the rotation speed
         decay = 0.997,         // Decay factor for smoothing rotation speed
@@ -16,6 +17,7 @@ export class RotationController {
         this.domElement = domElement;
 
         this.pitch = pitch;
+        this.roll = roll;
         this.yaw = yaw;
 
         this.rotationSpeed = rotationSpeed;
@@ -25,6 +27,7 @@ export class RotationController {
         this.acceleration = acceleration;
 
         this.deltaPitchVelocity = 0;
+        this.deltaRollVelocity = 0;
         this.deltaYawVelocity = 0;
 
         this.keys = {};
@@ -39,6 +42,7 @@ export class RotationController {
 
         // Calculate rotational acceleration based on key presses
         let deltaPitchAcceleration = 0;
+        let deltaRollAcceleration = 0;
         let deltaYawAcceleration = 0;
 
         if (this.keys['KeyS']) {
@@ -49,22 +53,36 @@ export class RotationController {
         }
 
         if (this.keys['KeyD']) {
-            deltaYawAcceleration = this.acceleration;    // Rotate left (around Z-axis)
+            deltaRollAcceleration = this.acceleration;    // Rotate left (around Z-axis)
         }
         if (this.keys['KeyA']) {
-            deltaYawAcceleration = -this.acceleration;   // Rotate right (around Z-axis)
+            deltaRollAcceleration = -this.acceleration;   // Rotate right (around Z-axis)
         }
 
-        // Apply acceleration to the velocity (deltaPitchVelocity and deltaYawVelocity)
+        if (this.keys['KeyQ']) {
+            deltaYawAcceleration = this.acceleration;    // Rotate left (around Y-axis)
+        }
+        if (this.keys['KeyE']) {
+            deltaYawAcceleration = -this.acceleration;   // Rotate right (around Y-axis)
+        }
+
+        // Apply acceleration to the velocity (deltaPitchVelocity, deltaRollVelocity, deltaYawVelocity)
         this.deltaPitchVelocity += deltaPitchAcceleration * dt;
+        this.deltaRollVelocity += deltaRollAcceleration * dt;
         this.deltaYawVelocity += deltaYawAcceleration * dt;
 
-        // Make sure the pitch/yaw velocity doesn't exceed the maximum speed
+        // Make sure the pitch/roll/yaw velocity doesn't exceed the maximum speed
         if(this.deltaPitchVelocity > this.max_rotation_velocity) {
             this.deltaPitchVelocity = this.max_rotation_velocity;
         } else if (this.deltaPitchVelocity < -this.max_rotation_velocity) {
             this.deltaPitchVelocity = -this.max_rotation_velocity;
-        } else if (this.deltaYawVelocity > this.max_rotation_velocity) {
+        } 
+        if (this.deltaRollVelocity > this.max_rotation_velocity) {
+            this.deltaRollVelocity = this.max_rotation_velocity;
+        } else if (this.deltaRollVelocity < -this.max_rotation_velocity) {
+            this.deltaRollVelocity = -this.max_rotation_velocity;
+        }
+        if (this.deltaYawVelocity > this.max_rotation_velocity) {
             this.deltaYawVelocity = this.max_rotation_velocity;
         } else if (this.deltaYawVelocity < -this.max_rotation_velocity) {
             this.deltaYawVelocity = -this.max_rotation_velocity;
@@ -75,19 +93,27 @@ export class RotationController {
             this.deltaPitchVelocity *= this.decay_velocity;
         }
         if (!this.keys['KeyA'] && !this.keys['KeyD']) {
+            this.deltaRollVelocity *= this.decay_velocity;
+        }
+        if (!this.keys['KeyQ'] && !this.keys['KeyE']) {
             this.deltaYawVelocity *= this.decay_velocity;
         }
 
-        // Update the pitch and yaw based on the velocities
+        // Update the pitch, roll, yaw based on the velocities
         this.pitch += this.deltaPitchVelocity * dt;
+        this.roll += this.deltaRollVelocity * dt;
         this.yaw += this.deltaYawVelocity * dt;
 
         // Apply the decay when no keys are pressed, gradually returning to the default rotation
-        if (!this.keys['KeyW'] && !this.keys['KeyS'] && !this.keys['KeyA'] && !this.keys['KeyD']) {
+        if (!this.keys['KeyW'] && !this.keys['KeyS'] && !this.keys['KeyA'] && 
+            !this.keys['KeyD'] && !this.keys['KeyQ'] && !this.keys['KeyE']) 
+        {
             this.pitch *= this.decay;  // Decay vertical rotation
             
             // ---- UNCOMMENT THIS LINE TO ENABLE DECAY FOR HORIZONTAL ROTATION ----
-            //this.yaw *= this.decay;    // Decay horizontal rotation
+            //this.roll *= this.decay;    // Decay horizontal rotation
+
+            this.yaw *= this.decay;  // Decay yaw rotation
         }
 
         // Apply rotational clamping
@@ -95,14 +121,17 @@ export class RotationController {
         const twoPi = Math.PI * 2;
 
         this.pitch = Math.min(Math.max(this.pitch, -halfPi), halfPi);
-        this.yaw = ((this.yaw % twoPi) + twoPi) % twoPi;
+        this.roll = ((this.roll % twoPi) + twoPi) % twoPi;
+        this.yaw = Math.min(Math.max(this.yaw, -Math.PI/8), Math.PI/8)
 
         // Apply the calculated rotation to the object
         const rotation = quat.create();
         // Y axis here
-        quat.rotateY(rotation, rotation, Math.PI);  // Z axis is always 180 degrees
-        quat.rotateZ(rotation, rotation, this.yaw);  // Apply yaw (Z-axis rotation)
-        quat.rotateX(rotation, rotation, this.pitch);  // Apply pitch (X-axis rotation)
+        quat.rotateY(rotation, rotation, Math.PI); // Z axis start position is 180 degrees
+
+        quat.rotateX(rotation, rotation, this.pitch);  // Apply pitch (X-axis rotation)   
+        quat.rotateY(rotation, rotation, this.yaw);  // Apply yaw (Y-axis rotation)
+        quat.rotateZ(rotation, rotation, this.roll);  // Apply roll (Z-axis rotation)
         transform.rotation = rotation;
     }
 
