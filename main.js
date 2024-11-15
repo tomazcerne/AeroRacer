@@ -17,6 +17,8 @@ import {
 
 import { loadResources } from 'engine/loaders/resources.js';
 
+import { RotationController } from './engine/controllers/RotationController.js';
+
 const resources = await loadResources({
     'mesh': new URL('models/airplane/plane.obj', import.meta.url),
     'image': new URL('models/airplane/tempTexture.png', import.meta.url),
@@ -73,3 +75,10 @@ function resize({ displaySize: { width, height }}) {
 
 new ResizeSystem({ canvas, resize }).start();
 new UpdateSystem({ update, render }).start();
+
+// rotiranje letala
+airplane.addComponent(new RotationController(airplane, canvas, {
+    pitch: 0,
+    yaw: 0,
+    rotationSpeed: 0.25,
+})); 
