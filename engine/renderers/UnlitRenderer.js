@@ -1,5 +1,4 @@
 import { mat4 } from 'glm';
-
 import * as WebGPU from '../WebGPU.js';
 
 import { Camera } from '../core.js';
@@ -32,11 +31,6 @@ const vertexBufferLayout = {
 };
 
 export class UnlitRenderer extends BaseRenderer {
-
-    constructor(canvas) {
-        super(canvas);
-    }
-
     async initialize() {
         await super.initialize();
 
@@ -48,10 +42,12 @@ export class UnlitRenderer extends BaseRenderer {
             layout: 'auto',
             vertex: {
                 module,
-                buffers: [ vertexBufferLayout ],
+                entryPoint: 'vertex_main',
+                buffers: [vertexBufferLayout],
             },
             fragment: {
                 module,
+                entryPoint: 'fragment_main',
                 targets: [{ format: this.format }],
             },
             depthStencil: {
@@ -122,8 +118,22 @@ export class UnlitRenderer extends BaseRenderer {
             return this.gpuObjects.get(texture);
         }
 
-        const { gpuTexture } = this.prepareImage(texture.image); // ignore sRGB
-        const { gpuSampler } = this.prepareSampler(texture.sampler);
+        const gpuTexture = this.device.createTexture({
+            size: [texture.image.width, texture.image.height],
+            format: 'rgba8unorm',
+            usage: GPUTextureUsage.TEXTURE_BINDING | GPUTextureUsage.COPY_DST | GPUTextureUsage.RENDER_ATTACHMENT,
+        });
+
+        this.device.queue.copyExternalImageToTexture(
+            { source: texture.image },
+            { texture: gpuTexture },
+            [texture.image.width, texture.image.height]
+        );
+
+        const gpuSampler = this.device.createSampler({
+            magFilter: 'linear',
+            minFilter: 'linear',
+        });
 
         const gpuObjects = { gpuTexture, gpuSampler };
         this.gpuObjects.set(texture, gpuObjects);
@@ -138,7 +148,7 @@ export class UnlitRenderer extends BaseRenderer {
         const baseTexture = this.prepareTexture(material.baseTexture);
 
         const materialUniformBuffer = this.device.createBuffer({
-            size: 16,
+            size: 16, // Assume material.baseFactor is a vec4 (4 * 4 bytes)
             usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
         });
 
@@ -178,6 +188,7 @@ export class UnlitRenderer extends BaseRenderer {
                 depthStoreOp: 'discard',
             },
         });
+
         this.renderPass.setPipeline(this.pipeline);
 
         const cameraComponent = camera.getComponentOfType(Camera);
@@ -230,5 +241,4 @@ export class UnlitRenderer extends BaseRenderer {
 
         this.renderPass.drawIndexed(primitive.mesh.indices.length);
     }
-
 }

@@ -19,17 +19,20 @@ import { loadResources } from 'engine/loaders/resources.js';
 
 import { RotationController } from './engine/controllers/RotationController.js';
 
+// Load resources
 const resources = await loadResources({
     'mesh': new URL('models/airplane/plane.obj', import.meta.url),
-    'image': new URL('models/airplane/tempTexture.png', import.meta.url),
+    'image': new URL('models/airplane/skin-01.jpg', import.meta.url),
+    'landscapeMesh': new URL('models/airplane/LANDSCAPE.obj', import.meta.url),
+    'landscapeImage': new URL('models/airplane/Ground062S_1K-JPG_Color.jpg', import.meta.url),
 });
 
 const canvas = document.querySelector('canvas');
 const renderer = new UnlitRenderer(canvas);
 await renderer.initialize();
 
+// Create airplane
 const airplane = new Node();
-// load airplane object and texture
 airplane.addComponent(new Model({
     primitives: [
         new Primitive({
@@ -43,30 +46,48 @@ airplane.addComponent(new Model({
         }),
     ],
 }));
-// initial position: scale and rotate
 airplane.addComponent(new Transform({
     rotation: quat.fromEuler(quat.create(), 0, 180, 0),
-    scale: [5, 5, 5]
+    scale: [5, 5, 5],
 }));
-
-// pitch, roll, yaw controls (rotations in all directions)
 airplane.addComponent(new RotationController(airplane, canvas, {
     pitch: 0,
     roll: 0,
     yaw: 0,
     rotationSpeed: 0.25,
-})); 
+}));
 
-// initialize camera
+// Create landscape
+const landscape = new Node();
+landscape.addComponent(new Model({
+    primitives: [
+        new Primitive({
+            mesh: resources.landscapeMesh,
+            material: new Material({
+                baseTexture: new Texture({
+                    image: resources.landscapeImage,
+                    sampler: new Sampler(),
+                }),
+            }),
+        }),
+    ],
+}));
+landscape.addComponent(new Transform({
+    translation: [0, -10, 0],
+    scale: [20, 20, 20],
+}));
+
+// Initialize camera
 const camera = new Node();
 camera.addComponent(new Camera());
 camera.addComponent(new Transform({
-    translation: [0, 5, 30]
+    translation: [0, 5, 30],
 }));
 
-// airplane + camera scene
+// Create the scene
 const scene = new Node();
 scene.addChild(airplane);
+scene.addChild(landscape);
 scene.addChild(camera);
 
 function update(time, dt) {
