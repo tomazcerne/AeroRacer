@@ -28,6 +28,7 @@ struct ModelUniforms {
 
 struct MaterialUniforms {
     baseFactor: vec4f,
+    uvScale: vec2f, // Add scaling for UV coordinates
 };
 
 @group(0) @binding(0) var<uniform> camera: CameraUniforms;
@@ -42,10 +43,10 @@ struct MaterialUniforms {
 fn vertex_main(input: VertexInput) -> VertexOutput {
     var output: VertexOutput;
 
-    // Flip UV coordinates on the Y-axis
-    output.texcoords = vec2(input.texcoords.x, 1.0 - input.texcoords.y);
-
     output.position = camera.projectionMatrix * camera.viewMatrix * model.modelMatrix * vec4(input.position, 1);
+
+    // Apply UV adjustments
+    output.texcoords = vec2(input.texcoords.x, 1.0 - input.texcoords.y); // Flip Y-axis
 
     return output;
 }
@@ -55,6 +56,7 @@ fn vertex_main(input: VertexInput) -> VertexOutput {
 fn fragment_main(input: FragmentInput) -> FragmentOutput {
     var output: FragmentOutput;
 
+    // Sample the texture using the scaled UV coordinates
     output.color = textureSample(baseTexture, baseSampler, input.texcoords) * material.baseFactor;
 
     return output;
