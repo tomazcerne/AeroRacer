@@ -72,7 +72,7 @@ planeAndCamera.addComponent(new AirplaneMotionController(planeAndCamera, airplan
     
 }));
 
-// Create landscape
+// Create landscape with adjusted texture scaling
 const landscape = new Node();
 landscape.addComponent(new Model({
     primitives: [
@@ -83,16 +83,17 @@ landscape.addComponent(new Model({
                     image: resources.landscapeImage,
                     sampler: new Sampler(),
                 }),
+                baseFactor: [1.0, 1.0, 1.0, 1.0], // White base factor
+                uvScale: [0.005, 0.005], // Adjust to make the texture larger
             }),
         }),
     ],
 }));
 landscape.addComponent(new Transform({
-    translation: [0, -10, 0],
-    scale: [20, 20, 20],
+    translation: [0, -150
+        , 0], // Position the landscape below the airplane
+    scale: [1000, 1000, 500],
 }));
-
-
 
 // Create the scene
 const scene = new Node();

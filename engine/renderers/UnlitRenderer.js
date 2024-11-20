@@ -144,14 +144,19 @@ export class UnlitRenderer extends BaseRenderer {
         if (this.gpuObjects.has(material)) {
             return this.gpuObjects.get(material);
         }
-
+    
         const baseTexture = this.prepareTexture(material.baseTexture);
-
+    
         const materialUniformBuffer = this.device.createBuffer({
-            size: 16, // Assume material.baseFactor is a vec4 (4 * 4 bytes)
+            size: 32, // Add space for uvScale (2 floats)
             usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
         });
-
+    
+        // Write UV scaling and baseFactor to the buffer
+        const uvScale = material.uvScale || [1.0, 1.0];
+        this.device.queue.writeBuffer(materialUniformBuffer, 0, new Float32Array(material.baseFactor));
+        this.device.queue.writeBuffer(materialUniformBuffer, 16, new Float32Array(uvScale));
+    
         const materialBindGroup = this.device.createBindGroup({
             layout: this.pipeline.getBindGroupLayout(2),
             entries: [
@@ -160,11 +165,13 @@ export class UnlitRenderer extends BaseRenderer {
                 { binding: 2, resource: baseTexture.gpuSampler },
             ],
         });
-
+    
         const gpuObjects = { materialUniformBuffer, materialBindGroup };
         this.gpuObjects.set(material, gpuObjects);
         return gpuObjects;
     }
+    
+    
 
     render(scene, camera) {
         if (this.depthTexture.width !== this.canvas.width || this.depthTexture.height !== this.canvas.height) {
