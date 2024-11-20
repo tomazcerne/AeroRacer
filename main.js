@@ -49,7 +49,7 @@ airplane.addComponent(new Model({
 }));
 airplane.addComponent(new Transform({
     rotation: quat.fromEuler(quat.create(), 0, 180, 0),
-    scale: [1, 1, 1],
+    scale: [5, 5, 5],
 }));
 airplane.addComponent(new AirplaneRotationController(airplane, canvas, {
     
@@ -57,16 +57,16 @@ airplane.addComponent(new AirplaneRotationController(airplane, canvas, {
 
 // Initialize camera
 const camera = new Node();
-camera.addComponent(new Camera());
+camera.addComponent(new Camera({near: 1, far: 2000,}));
 camera.addComponent(new Transform({
-    translation: [0, 1, 5],
+    translation: [0, 5, 25],
 }));
 
 const planeAndCamera = new Node()
 planeAndCamera.addChild(airplane)
 planeAndCamera.addChild(camera)
 planeAndCamera.addComponent(new Transform({
-    rotation: quat.fromEuler(quat.create(), 0, 90, 0),
+    rotation: quat.fromEuler(quat.create(), 0, 0, 0),
 }));
 planeAndCamera.addComponent(new AirplaneMotionController(planeAndCamera, airplane, canvas, {
     

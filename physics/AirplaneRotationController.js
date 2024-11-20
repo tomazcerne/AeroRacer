@@ -16,9 +16,9 @@ export class AirplaneRotationController {
             yaw: 0.995,
         },        
         acceleration = { // How fast the rotation accelerates
-            pitch: 1.0,
-            roll: 1.0,
-            yaw: 1.0,
+            pitch: 0.5,
+            roll: 0.5,
+            yaw: 0.5,
         },    
         decay_velocity = { // Decay factor for smoothing velocity
             pitch: 0.99,
@@ -26,9 +26,9 @@ export class AirplaneRotationController {
             yaw: 0.99,
         }, 
         max_velocity = {
-            pitch: 0.5,
-            roll: 0.5,
-            yaw: 0.5,
+            pitch: 0.2,
+            roll: 0.2,
+            yaw: 0.2,
         },
     } = {}) {
         this.airplane = airplane;
