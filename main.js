@@ -17,7 +17,8 @@ import {
 
 import { loadResources } from 'engine/loaders/resources.js';
 
-import { RotationController } from './engine/controllers/RotationController.js';
+import { AirplaneRotationController} from './physics/AirplaneRotationController.js';
+import { AirplaneMotionController } from './physics/AirplaneMotionController.js';
 
 // Load resources
 const resources = await loadResources({
@@ -48,13 +49,27 @@ airplane.addComponent(new Model({
 }));
 airplane.addComponent(new Transform({
     rotation: quat.fromEuler(quat.create(), 0, 180, 0),
-    scale: [5, 5, 5],
+    scale: [1, 1, 1],
 }));
-airplane.addComponent(new RotationController(airplane, canvas, {
-    pitch: 0,
-    roll: 0,
-    yaw: 0,
-    rotationSpeed: 0.25,
+airplane.addComponent(new AirplaneRotationController(airplane, canvas, {
+    
+}));
+
+// Initialize camera
+const camera = new Node();
+camera.addComponent(new Camera());
+camera.addComponent(new Transform({
+    translation: [0, 1, 5],
+}));
+
+const planeAndCamera = new Node()
+planeAndCamera.addChild(airplane)
+planeAndCamera.addChild(camera)
+planeAndCamera.addComponent(new Transform({
+    rotation: quat.fromEuler(quat.create(), 0, 90, 0),
+}));
+planeAndCamera.addComponent(new AirplaneMotionController(planeAndCamera, airplane, canvas, {
+    
 }));
 
 // Create landscape
@@ -77,18 +92,12 @@ landscape.addComponent(new Transform({
     scale: [20, 20, 20],
 }));
 
-// Initialize camera
-const camera = new Node();
-camera.addComponent(new Camera());
-camera.addComponent(new Transform({
-    translation: [0, 5, 30],
-}));
+
 
 // Create the scene
 const scene = new Node();
-scene.addChild(airplane);
+scene.addChild(planeAndCamera);
 scene.addChild(landscape);
-scene.addChild(camera);
 
 function update(time, dt) {
     scene.traverse(node => {
