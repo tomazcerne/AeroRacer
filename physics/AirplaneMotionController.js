@@ -8,40 +8,98 @@ export class AirplaneMotionController {
 
     constructor(planeAndCamera, airplane, domElement, {
         rotationSpeed = {
-            pitch: 0.8,
-            roll: 0.8,
-            yaw: 0.8,
+            pitch: 1.0,
+            roll: 1.0,
+            yaw: 1.0,
         },
-        translationSpeed = 60, // m/s
+        airspeed = 60,// m/s
     } = {}) {
         this.planeAndCamera = planeAndCamera;
         this.airplane = airplane;
         this.domElement = domElement;
         this.rotationSpeed = rotationSpeed;
-        this.translationSpeed = translationSpeed;
-        this.translationVector = [0, 0, -1];
+        this.airspeed = airspeed;
+        this.directionVectors = {
+            axisX: [-1, 0, 0],
+            axisY: [0, 1, 0],
+            axisZ: [0, 0, -1],
+        };
         this.position = {
             pitch: 0,
             roll: 0,
             yaw: 0,
         };
+        this.rollImpact = 0;
     }
 
-    getDirectionVector() {
-        return this.translationVector;
+    getAirplaneDirection() {
+        return this.directionVectors;
     }
     getPosition() {
         return this.position;
     }
+    angleDegrees(angle) {
+        angle *= (180 / PI);
+        return Math.round(angle);
+    }
+    displayPosition() {
+        const displayWindow = document.querySelector("#positionDisplay");
+        const pitchData = displayWindow.querySelector("#pitch span");
+        pitchData.innerText = this.angleDegrees(this.position.pitch);
+        const rollData = displayWindow.querySelector("#roll span");
+        rollData.innerText = this.angleDegrees(this.position.roll);
+        const yawData = displayWindow.querySelector("#yaw span");
+        yawData.innerText = this.angleDegrees(this.position.yaw);
+    }
 
-    calculateTranslationVector(rotation, t, dt) {
-        //console.log(this.position.pitch);
-        const distance = this.translationSpeed * dt;
-        const vector = vec3.fromValues(0, 0, -1);
-        vec3.transformQuat(vector, vector, rotation);
-        vec3.normalize(vector, vector);
+    updateDirectionVectors(rotation) {
+        const vectors = {
+            axisX: [-1, 0, 0],
+            axisY: [0, 1, 0],
+            axisZ: [0, 0, -1],
+        };
+        vec3.transformQuat(vectors.axisX, vectors.axisX, rotation);
+        vec3.transformQuat(vectors.axisY, vectors.axisY, rotation);
+        vec3.transformQuat(vectors.axisZ, vectors.axisZ, rotation);
+        this.directionVectors = vectors;
+    }
+
+    calculateTranslationVector(t, dt) {
+        const distance = this.airspeed * dt;
+        const vector = this.directionVectors.axisZ;
         vec3.scale(vector, vector, distance);
         return vector;
+    }
+
+    angleBetweenVectorAndPlane([l, m, n], [A, B, C]) {
+        let sinPhi = A*l + B*m + C*n;
+        sinPhi /= (Math.sqrt(A*A +B*B+C*C) * Math.sqrt(l*l+m*m+n*n));
+        return Math.asin(sinPhi);
+    }
+
+    updatePosition() {
+        const { axisX, axisY, axisZ } = this.directionVectors;
+        const up = vec3.dot(axisY, [0, 1, 0]) >= 0;
+        const front = vec3.dot(axisZ, [0, 0, -1]) >= 0;
+        let pitch = this.angleBetweenVectorAndPlane(axisZ, [0,1,0]);
+        let roll = this.angleBetweenVectorAndPlane(axisX, [0,1,0]);
+        let yaw = this.angleBetweenVectorAndPlane(axisZ, [1,0,0]);
+
+        let impact = -roll;
+        if (!up) { 
+            pitch = (pitch > 0) ? PI - pitch : -PI - pitch;
+            roll = (roll > 0) ? PI - roll : -PI - roll;
+            impact = (roll > 0) ? PI - roll : -PI - roll;
+        }
+        impact = Math.max(-PI/6, Math.min(impact, PI/6));
+        this.rollImpact = impact;
+        
+        if(!front) {
+            yaw = (yaw > 0) ? PI - yaw: -PI - yaw;
+        }
+        if (yaw < 0) {yaw += 2*PI}
+
+        this.position = {pitch, roll, yaw};
     }
 
     update(t, dt) {
@@ -58,18 +116,21 @@ export class AirplaneMotionController {
             yaw: input.yaw * dt * this.rotationSpeed.yaw,
         };
         // Apply the calculated rotation to the object
+        const yawAdjustment = this.rollImpact * dt * 0.1;
         const rotation = transform.rotation;
         quat.rotateX(rotation, rotation, rotate.pitch);  // Apply pitch (X-axis rotation)   
-        quat.rotateY(rotation, rotation, rotate.yaw);  // Apply yaw (Y-axis rotation)
+        quat.rotateY(rotation, rotation, rotate.yaw + yawAdjustment);  // Apply yaw (Y-axis rotation)
         quat.rotateZ(rotation, rotation, rotate.roll);  // Apply roll (Z-axis rotation)
+        this.updateDirectionVectors(rotation);
         transform.rotation = rotation;
 
-        //TODO set position
-
-        this.translationVector = this.calculateTranslationVector(rotation, t, dt);
+        const translationVector = this.calculateTranslationVector(t, dt);
         transform.translation = transform.translation.map((current, i) => {
-            return current + this.translationVector[i];
+            return current + translationVector[i];
         });
+
+        this.updatePosition();
+        this.displayPosition();
     }
 
 }

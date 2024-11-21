@@ -66,7 +66,6 @@ const planeAndCamera = new Node()
 planeAndCamera.addChild(airplane)
 planeAndCamera.addChild(camera)
 planeAndCamera.addComponent(new Transform({
-    rotation: quat.fromEuler(quat.create(), 0, 90, 0),
     translation: [0, 400, 0],
 }));
 planeAndCamera.addComponent(new AirplaneMotionController(planeAndCamera, airplane, canvas, {
