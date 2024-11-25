@@ -13,6 +13,7 @@ export class AirplaneMotionController {
             yaw: 1.0,
         },
         airspeed = 60,// m/s
+        rollImpactFactor = 1.0,
     } = {}) {
         this.planeAndCamera = planeAndCamera;
         this.airplane = airplane;
@@ -30,6 +31,7 @@ export class AirplaneMotionController {
             yaw: 0,
         };
         this.rollImpact = 0;
+        this.rollImpactFactor = rollImpactFactor;
     }
 
     getAirplaneDirection() {
@@ -97,7 +99,7 @@ export class AirplaneMotionController {
             impact = -PI/2 - impact;
         }
         impact *= up ? -1 : 1;
-        this.rollImpact = impact * 0.5;
+        this.rollImpact = impact * this.rollImpactFactor;
         
         if(!front) {
             yaw = (yaw > 0) ? PI - yaw: -PI - yaw;
