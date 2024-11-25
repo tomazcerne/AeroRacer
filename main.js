@@ -26,6 +26,8 @@ const resources = await loadResources({
     'image': new URL('models/airplane/skin-01.jpg', import.meta.url),
     'landscapeMesh': new URL('models/airplane/LANDSCAPE.obj', import.meta.url),
     'landscapeImage': new URL('models/airplane/Ground062S_1K-JPG_Color.jpg', import.meta.url),
+    'loopMesh': new URL('models/airplane/loop.obj', import.meta.url),
+    'loopImage': new URL('models/airplane/yellowOrangeColor.jpg', import.meta.url),
 });
 
 const canvas = document.querySelector('canvas');
@@ -100,6 +102,41 @@ landscape.addComponent(new Transform({
 const scene = new Node();
 scene.addChild(planeAndCamera);
 scene.addChild(landscape);
+
+// Add n loops to the scene with some random variation
+const n = 20;
+for (let i = 0; i < n; i++) {
+    const loop = new Node();
+    loop.addComponent(new Model({
+        primitives: [
+            new Primitive({
+                mesh: resources.loopMesh,
+                material: new Material({
+                    baseTexture: new Texture({
+                        image: resources.loopImage,
+                        sampler: new Sampler(),
+                    }),
+                }),
+            }),
+        ],
+    }));
+    /* LOOPS IN A CIRCLE
+    let angle = (i / n) * Math.PI * 2;
+    let x = Math.abs(Math.sin(angle/2)) * 5000;
+    let y = 400;
+    let z = Math.sin(angle) * -5000 - 2500;
+    */
+    // LOOPS IN A LINE
+    let x = Math.random() * 100 - 50;
+    let y = 400 + Math.random() * 100 - 50;
+    let z = -500 - i * 1000;
+    loop.addComponent(new Transform({
+        translation: [x, y, z],
+        rotation: quat.fromEuler(quat.create(), 0, Math.random() * 20 - 10 + 90, 0),
+        scale: [20, 20, 20],
+    }));
+    scene.addChild(loop);
+}
 
 function update(time, dt) {
     scene.traverse(node => {
