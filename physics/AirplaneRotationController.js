@@ -17,7 +17,7 @@ export class AirplaneRotationController {
         },        
         acceleration = { // How fast the rotation accelerates
             pitch: 0.7,
-            roll: 0.7,
+            roll: 1.0,
             yaw: 0.7,
         },    
         decay_velocity = { // Decay factor for smoothing velocity
@@ -27,7 +27,7 @@ export class AirplaneRotationController {
         }, 
         max_velocity = {
             pitch: 0.2,
-            roll: 0.2,
+            roll: 0.1,
             yaw: 0.2,
         },
     } = {}) {
@@ -129,7 +129,7 @@ export class AirplaneRotationController {
 
         // Apply rotational clamping
         this.input.pitch = Math.min(Math.max(this.input.pitch, -PI/12), PI/12);
-        this.input.roll = Math.min(Math.max(this.input.roll, -PI/12), PI/12);
+        this.input.roll = Math.min(Math.max(this.input.roll, -PI/2), PI/2);
         this.input.yaw = Math.min(Math.max(this.input.yaw, -PI/12), PI/12); 
     }
 

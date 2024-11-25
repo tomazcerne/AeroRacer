@@ -9,7 +9,7 @@ export class AirplaneMotionController {
     constructor(planeAndCamera, airplane, domElement, {
         rotationSpeed = {
             pitch: 1.0,
-            roll: 1.0,
+            roll: 1.5,
             yaw: 1.0,
         },
         airspeed = 60,// m/s
@@ -84,15 +84,20 @@ export class AirplaneMotionController {
         let pitch = this.angleBetweenVectorAndPlane(axisZ, [0,1,0]);
         let roll = this.angleBetweenVectorAndPlane(axisX, [0,1,0]);
         let yaw = this.angleBetweenVectorAndPlane(axisZ, [1,0,0]);
-
-        let impact = -roll;
+        let impact = roll;
         if (!up) { 
             pitch = (pitch > 0) ? PI - pitch : -PI - pitch;
             roll = (roll > 0) ? PI - roll : -PI - roll;
-            impact = (roll > 0) ? PI - roll : -PI - roll;
         }
-        impact = Math.max(-PI/6, Math.min(impact, PI/6));
-        this.rollImpact = impact;
+
+        if (roll > PI/4 && roll < 3*PI/4) {
+            impact = PI/2 - impact;
+        }
+        else if (roll < -PI/4 && roll > -3*PI/4) {
+            impact = -PI/2 - impact;
+        }
+        impact *= up ? -1 : 1;
+        this.rollImpact = impact * 0.5;
         
         if(!front) {
             yaw = (yaw > 0) ? PI - yaw: -PI - yaw;
