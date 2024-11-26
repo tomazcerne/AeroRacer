@@ -8,12 +8,12 @@ export class AirplaneMotionController {
 
     constructor(planeAndCamera, airplane, domElement, {
         rotationSpeed = {
-            pitch: 1.0,
+            pitch: 1.5,
             roll: 1.5,
             yaw: 1.0,
         },
         airspeed = 60,// m/s
-        rollImpactFactor = 1.0,
+        rollImpactFactor = 1.5,
     } = {}) {
         this.planeAndCamera = planeAndCamera;
         this.airplane = airplane;
