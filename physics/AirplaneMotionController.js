@@ -52,14 +52,14 @@ export class AirplaneMotionController {
         rollData.innerText = this.angleDegrees(this.position.roll);
         const yawData = displayWindow.querySelector("#yaw span");
         yawData.innerText = this.angleDegrees(this.position.yaw);
-        /*
+        
         const translation = this.planeAndCamera.getComponentOfType(Transform).translation;
         const x = displayWindow.querySelector("#X span");
         x.innerText = translation[0];
         const y = displayWindow.querySelector("#Y span");
         y.innerText = translation[1];
         const z = displayWindow.querySelector("#Z span");
-        z.innerText = translation[2];*/
+        z.innerText = translation[2];
     }
 
     updateDirectionVectors(rotation) {
