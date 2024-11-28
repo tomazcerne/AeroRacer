@@ -28,6 +28,7 @@ const resources = await loadResources({
     'landscapeImage': new URL('models/airplane/Ground062S_1K-JPG_Color.jpg', import.meta.url),
     'loopMesh': new URL('models/airplane/loop.obj', import.meta.url),
     'loopImage': new URL('models/airplane/yellowOrangeColor.jpg', import.meta.url),
+    'finalLoopImage': new URL('models/airplane/blue.jpg', import.meta.url),
 });
 
 const canvas = document.querySelector('canvas');
@@ -67,7 +68,7 @@ const planeAndCamera = new Node()
 planeAndCamera.addChild(airplane)
 planeAndCamera.addChild(camera)
 planeAndCamera.addComponent(new Transform({
-    translation: [0, 400, 1500] //0,400,1500
+    translation: [0, 400, 2500]
 }));
 planeAndCamera.addComponent(new AirplaneMotionController(planeAndCamera, airplane, canvas, {
     
@@ -94,7 +95,7 @@ landscape.addComponent(new Transform({
    /* translation: [0, -150
         , 0], // Position the landscape below the airplane */
     // plane and camera position is translated instead
-    scale: [1000, 1000, 500],
+    scale: [1000, 1000, 1000],
 }));
 
 // Create the scene
@@ -104,29 +105,50 @@ scene.addChild(landscape);
 
 // Add n loops to the scene with some random variation
 const loopPositions = [
-    [0, 400, 1000, 90], // [x, y, z, rotation]
-    [-165, 365, 500 , 110],
-    [-660, 215, 88, 140],
-    [-740, 190, -670, 110],
-    [400, 168, -400, 60],
-
+    [100, 377, 1800, 80], // [x, y, z, rotation]
+    [820, 297,  1060, 60],
+    [1318, 240, 745, 50],
+    [1855, 182, 400, 50],
+    [2090, 265, 105, 80],
+    [2238, 263, -935, 95],
+    [1979, 228, -1557, 130],
+    [780, 113, -1858, 190],
+    [60, 91, -1485, 190],
+    [-1040, 122, -565, 245],
+    [-921, 155, 202, 340]
 ];
 var loops = [];
 for (let i = 0; i < loopPositions.length; i++) {
     const loop = new Node();
-    loop.addComponent(new Model({
-        primitives: [
-            new Primitive({
-                mesh: resources.loopMesh,
-                material: new Material({
-                    baseTexture: new Texture({
-                        image: resources.loopImage,
-                        sampler: new Sampler(),
+    if (i == loopPositions.length - 1) {
+        loop.addComponent(new Model({
+            primitives: [
+                new Primitive({
+                    mesh: resources.loopMesh,
+                    material: new Material({
+                        baseTexture: new Texture({
+                            image: resources.finalLoopImage,
+                            sampler: new Sampler(),
+                        }),
                     }),
                 }),
-            }),
-        ],
-    }));
+            ],
+        }));
+    } else {
+        loop.addComponent(new Model({
+            primitives: [
+                new Primitive({
+                    mesh: resources.loopMesh,
+                    material: new Material({
+                        baseTexture: new Texture({
+                            image: resources.loopImage,
+                            sampler: new Sampler(),
+                        }),
+                    }),
+                }),
+            ],
+        }));
+    }
     // loops from the array
     let x = loopPositions[i][0];
     let y = loopPositions[i][1];
