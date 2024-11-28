@@ -55,11 +55,11 @@ export class AirplaneMotionController {
         
         const translation = this.planeAndCamera.getComponentOfType(Transform).translation;
         const x = displayWindow.querySelector("#X span");
-        x.innerText = translation[0];
+        x.innerText = Math.round(translation[0]);
         const y = displayWindow.querySelector("#Y span");
-        y.innerText = translation[1];
+        y.innerText = Math.round(translation[1]);
         const z = displayWindow.querySelector("#Z span");
-        z.innerText = translation[2];
+        z.innerText = Math.round(translation[2]);
     }
 
     updateDirectionVectors(rotation) {
