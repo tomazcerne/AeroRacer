@@ -67,7 +67,7 @@ const planeAndCamera = new Node()
 planeAndCamera.addChild(airplane)
 planeAndCamera.addChild(camera)
 planeAndCamera.addComponent(new Transform({
-    translation: [0, 400, 1500]
+    translation: [0, 400, 1500] //0,400,1500
 }));
 planeAndCamera.addComponent(new AirplaneMotionController(planeAndCamera, airplane, canvas, {
     
@@ -103,8 +103,16 @@ scene.addChild(planeAndCamera);
 scene.addChild(landscape);
 
 // Add n loops to the scene with some random variation
-const n = 20;
-for (let i = 0; i < n; i++) {
+const loopPositions = [
+    [0, 400, 1000, 90], // [x, y, z, rotation]
+    [-165, 365, 500 , 110],
+    [-660, 215, 88, 140],
+    [-740, 190, -670, 110],
+    [400, 168, -400, 60],
+
+];
+var loops = [];
+for (let i = 0; i < loopPositions.length; i++) {
     const loop = new Node();
     loop.addComponent(new Model({
         primitives: [
@@ -119,23 +127,20 @@ for (let i = 0; i < n; i++) {
             }),
         ],
     }));
-    /* LOOPS IN A CIRCLE
-    let angle = (i / n) * Math.PI * 2;
-    let x = Math.abs(Math.sin(angle/2)) * 5000;
-    let y = 400;
-    let z = Math.sin(angle) * -5000 - 2500;
-    */
-    // LOOPS IN A LINE
-    let x = Math.random() * 100 - 50;
-    let y = 400 + Math.random() * 100 - 50;
-    let z = -500 - i * 1000;
+    // loops from the array
+    let x = loopPositions[i][0];
+    let y = loopPositions[i][1];
+    let z = loopPositions[i][2];
     loop.addComponent(new Transform({
         translation: [x, y, z],
-        rotation: quat.fromEuler(quat.create(), 0, Math.random() * 20 - 10 + 90, 0),
+        rotation: quat.fromEuler(quat.create(), 0, loopPositions[i][3], 0),
         scale: [20, 20, 20],
     }));
     scene.addChild(loop);
+    loops.push(loop);
 }
+
+
 
 function update(time, dt) {
     scene.traverse(node => {
