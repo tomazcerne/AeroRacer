@@ -19,6 +19,7 @@ import { loadResources } from 'engine/loaders/resources.js';
 
 import { AirplaneRotationController} from './physics/AirplaneRotationController.js';
 import { AirplaneMotionController } from './physics/AirplaneMotionController.js';
+import { LandscapeColisionDetector } from './physics/LandscapeCollisionDetector.js';
 
 // Load resources
 const resources = await loadResources({
@@ -72,6 +73,9 @@ planeAndCamera.addComponent(new Transform({
 planeAndCamera.addComponent(new AirplaneMotionController(planeAndCamera, airplane, canvas, {
     
 }));
+planeAndCamera.addComponent(
+  new LandscapeColisionDetector(planeAndCamera)
+);
 
 // Create landscape with adjusted texture scaling
 const landscape = new Node();
