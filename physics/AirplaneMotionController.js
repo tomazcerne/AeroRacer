@@ -9,7 +9,7 @@ export class AirplaneMotionController {
     constructor(planeAndCamera, airplane, domElement, {
         rotationSpeed = {
             pitch: 1.5,
-            roll: 1.5,
+            roll: 2,
             yaw: 1.0,
         },
         airspeed = 60,// m/s
@@ -52,13 +52,14 @@ export class AirplaneMotionController {
         rollData.innerText = this.angleDegrees(this.position.roll);
         const yawData = displayWindow.querySelector("#yaw span");
         yawData.innerText = this.angleDegrees(this.position.yaw);
-
-        const transform = this.planeAndCamera.getComponentOfType(Transform);
-        const altitudeData = displayWindow.querySelector("#altitude span");
-        altitudeData.innerText = Math.round(transform.translation[1]);
-        const coordinates = displayWindow.querySelector("#coordinates span");
-        coordinates.innerText = Math.round(transform.translation[0]) + ", " + 
-            Math.round(transform.translation[2]);
+        
+        const translation = this.planeAndCamera.getComponentOfType(Transform).translation;
+        const x = displayWindow.querySelector("#X span");
+        x.innerText = translation[0];
+        const y = displayWindow.querySelector("#Y span");
+        y.innerText = translation[1];
+        const z = displayWindow.querySelector("#Z span");
+        z.innerText = translation[2];
     }
 
     updateDirectionVectors(rotation) {

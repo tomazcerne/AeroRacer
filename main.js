@@ -29,6 +29,7 @@ const resources = await loadResources({
     'landscapeImage': new URL('models/airplane/Ground062S_1K-JPG_Color.jpg', import.meta.url),
     'loopMesh': new URL('models/airplane/loop.obj', import.meta.url),
     'loopImage': new URL('models/airplane/yellowOrangeColor.jpg', import.meta.url),
+    'finalLoopImage': new URL('models/airplane/blue.jpg', import.meta.url),
 });
 
 const canvas = document.querySelector('canvas');
@@ -107,39 +108,65 @@ scene.addChild(planeAndCamera);
 scene.addChild(landscape);
 
 // Add n loops to the scene with some random variation
-const n = 20;
-for (let i = 0; i < n; i++) {
+const loopPositions = [
+    [100, 377, 1800, 80], // [x, y, z, rotation]
+    [820, 297,  1060, 60],
+    [1318, 240, 745, 50],
+    [1855, 182, 400, 50],
+    [2090, 265, 105, 80],
+    [2238, 263, -935, 95],
+    [1979, 228, -1557, 130],
+    [780, 113, -1858, 190],
+    [60, 91, -1485, 190],
+    [-1040, 122, -565, 245],
+    [-921, 155, 202, 340]
+];
+var loops = [];
+for (let i = 0; i < loopPositions.length; i++) {
     const loop = new Node();
-    loop.addComponent(new Model({
-        primitives: [
-            new Primitive({
-                mesh: resources.loopMesh,
-                material: new Material({
-                    baseTexture: new Texture({
-                        image: resources.loopImage,
-                        sampler: new Sampler(),
+    if (i == loopPositions.length - 1) {
+        loop.addComponent(new Model({
+            primitives: [
+                new Primitive({
+                    mesh: resources.loopMesh,
+                    material: new Material({
+                        baseTexture: new Texture({
+                            image: resources.finalLoopImage,
+                            sampler: new Sampler(),
+                        }),
                     }),
                 }),
-            }),
-        ],
-    }));
-    /* LOOPS IN A CIRCLE
-    let angle = (i / n) * Math.PI * 2;
-    let x = Math.abs(Math.sin(angle/2)) * 5000;
-    let y = 400;
-    let z = Math.sin(angle) * -5000 - 2500;
-    */
-    // LOOPS IN A LINE
-    let x = Math.random() * 100 - 50;
-    let y = 400 + Math.random() * 100 - 50;
-    let z = -500 - i * 1000;
+            ],
+        }));
+    } else {
+        loop.addComponent(new Model({
+            primitives: [
+                new Primitive({
+                    mesh: resources.loopMesh,
+                    material: new Material({
+                        baseTexture: new Texture({
+                            image: resources.loopImage,
+                            sampler: new Sampler(),
+                        }),
+                    }),
+                }),
+            ],
+        }));
+    }
+    // loops from the array
+    let x = loopPositions[i][0];
+    let y = loopPositions[i][1];
+    let z = loopPositions[i][2];
     loop.addComponent(new Transform({
         translation: [x, y, z],
-        rotation: quat.fromEuler(quat.create(), 0, Math.random() * 20 - 10 + 90, 0),
+        rotation: quat.fromEuler(quat.create(), 0, loopPositions[i][3], 0),
         scale: [20, 20, 20],
     }));
     scene.addChild(loop);
+    loops.push(loop);
 }
+
+
 
 function update(time, dt) {
     scene.traverse(node => {
