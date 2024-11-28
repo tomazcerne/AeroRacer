@@ -1,9 +1,10 @@
 import { Transform } from "../engine/core/Transform.js";
 
 export class LandscapeColisionDetector {
-  constructor(airplaneAndCamera) {
+  constructor(airplaneAndCamera, heightCorrectionFactor) {
     this.airplaneAndCamera = airplaneAndCamera;
     this.heightMap = [];
+    this.heightCorrectionFactor = 1.75; // Correction factor for detected height
     const canvas = document.querySelector("#heightMapCanvas");
     const image = document.querySelector("#heightMapImage");
     image.src = "heights.png";
@@ -23,21 +24,30 @@ export class LandscapeColisionDetector {
           pixels.push(p);
         }
       }
-      //console.log(pixels);
       this.heightMap = pixels;
     };
   }
+
   update(t, dt) {
     const airplane = this.airplaneAndCamera;
     const transform = airplane.getComponentOfType(Transform);
     const translation = transform.translation;
+
+    // Map airplane position to heightmap indices
     let x = Math.round((translation[0] + 2500) / 2);
     let z = Math.round((translation[2] + 2500) / 2);
 
+    // Get the raw heightmap value
     let landscapeHeight = this.heightMap[z * 2500 + x];
 
+    // Apply height correction factor
+    landscapeHeight *= this.heightCorrectionFactor;
+
+    // Calculate height difference
     let planeHeight = translation[1];
     const height = planeHeight - landscapeHeight;
+
+    // Update altitude display
     const altitudeData = document.querySelector("#ground span");
     altitudeData.innerText = Math.round(height);
   }
