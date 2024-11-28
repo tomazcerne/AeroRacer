@@ -67,7 +67,7 @@ const planeAndCamera = new Node()
 planeAndCamera.addChild(airplane)
 planeAndCamera.addChild(camera)
 planeAndCamera.addComponent(new Transform({
-    translation: [0, 400, 1500]
+    translation: [0, 400, 2500]
 }));
 planeAndCamera.addComponent(new AirplaneMotionController(planeAndCamera, airplane, canvas, {
     
@@ -94,7 +94,7 @@ landscape.addComponent(new Transform({
    /* translation: [0, -150
         , 0], // Position the landscape below the airplane */
     // plane and camera position is translated instead
-    scale: [1000, 1000, 500],
+    scale: [1000, 1000, 1000],
 }));
 
 // Create the scene

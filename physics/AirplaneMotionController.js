@@ -52,6 +52,13 @@ export class AirplaneMotionController {
         rollData.innerText = this.angleDegrees(this.position.roll);
         const yawData = displayWindow.querySelector("#yaw span");
         yawData.innerText = this.angleDegrees(this.position.yaw);
+
+        const transform = this.planeAndCamera.getComponentOfType(Transform);
+        const altitudeData = displayWindow.querySelector("#altitude span");
+        altitudeData.innerText = Math.round(transform.translation[1]);
+        const coordinates = displayWindow.querySelector("#coordinates span");
+        coordinates.innerText = Math.round(transform.translation[0]) + ", " + 
+            Math.round(transform.translation[2]);
     }
 
     updateDirectionVectors(rotation) {
