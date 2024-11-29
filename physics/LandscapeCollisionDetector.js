@@ -1,13 +1,13 @@
 import { Transform } from "../engine/core/Transform.js";
 
 export class LandscapeColisionDetector {
-  constructor(airplaneAndCamera, heightCorrectionFactor) {
+  constructor(airplaneAndCamera) {
     this.airplaneAndCamera = airplaneAndCamera;
     this.heightMap = [];
     this.heightCorrectionFactor = 1.75; // Correction factor for detected height
     const canvas = document.querySelector("#heightMapCanvas");
     const image = document.querySelector("#heightMapImage");
-    image.src = "heights.png";
+    image.src = "./physics/heights.png";
     const ctx = canvas.getContext("2d");
 
     image.onload = () => {
@@ -50,5 +50,15 @@ export class LandscapeColisionDetector {
     // Update altitude display
     const altitudeData = document.querySelector("#ground span");
     altitudeData.innerText = Math.round(height);
+
+    // Check for collision
+    if (height < 0) {
+      const gameScreen = document.querySelector("#gameScreen");
+      const endScreen = document.querySelector("#endScreen");
+      const message = endScreen.querySelector(".message");
+      message.innerText = "You crashed into the ground!";
+      gameScreen.style.display = "none";
+      endScreen.style.display = "block";
+    }
   }
 }
