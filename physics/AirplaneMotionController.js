@@ -15,7 +15,7 @@ export class AirplaneMotionController {
         yaw: 1.0,
       },
       airspeed = 60, // m/s
-      rollImpactFactor = 1,
+      rollImpactFactor = 1.5,
     } = {}
   ) {
     this.planeAndCamera = planeAndCamera;

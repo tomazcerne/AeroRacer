@@ -121,3 +121,15 @@
   color: white;
   padding: 20px;
 }
+
+#scoreboardCanvas {
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  width: 33%; 
+  height: auto;
+  aspect-ratio: 10 / 1; 
+  z-index: 10;
+  background-color: transparent; 
+  border: none; 
+}

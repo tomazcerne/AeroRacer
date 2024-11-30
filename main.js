@@ -86,7 +86,6 @@ planeAndCamera.addComponent(
 planeAndCamera.addComponent(
   new AirplaneMotionController(planeAndCamera, airplane, {})
 );
-planeAndCamera.addComponent(new LandscapeColisionDetector(planeAndCamera));
 
 // Create landscape with adjusted texture scaling
 const landscape = new Node();
@@ -121,12 +120,12 @@ const scene = new Node();
 scene.addChild(planeAndCamera);
 scene.addChild(landscape);
 
-// Add n loops to the scene with some random variation
+// Create loops
 const loopPositions = [
   [100, 377, 1800, 80], // [x, y, z, rotation]
   [820, 297, 1060, 60],
-  [1318, 240, 745, 50],
-  [1855, 182, 400, 50],
+  [1318, 240, 745, 60],
+  [1855, 182, 400, 55],
   [2090, 265, 105, 80],
   [2238, 263, -935, 95],
   [1979, 228, -1557, 130],
@@ -185,6 +184,8 @@ for (let i = 0; i < loopPositions.length; i++) {
   scene.addChild(loop);
   loops.push(loop);
 }
+
+planeAndCamera.addComponent(new LandscapeColisionDetector(planeAndCamera, loopPositions));
 
 function update(time, dt) {
   scene.traverse((node) => {
