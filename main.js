@@ -30,6 +30,8 @@ const resources = await loadResources({
     "models/landscape/Ground062S_1K-JPG_Color.jpg",
     import.meta.url
   ),
+  skyMesh: new URL("models/landscape/skyDome.obj", import.meta.url),
+  skyImage: new URL("models/landscape/Ground062S_1K-JPG_Color.jpg", import.meta.url),
   loopMesh: new URL("models/loop/loop.obj", import.meta.url),
   loopImage: new URL("models/loop/yellowOrangeColor.jpg", import.meta.url),
   finalLoopImage: new URL("models/loop/blue.jpg", import.meta.url),
@@ -68,7 +70,7 @@ airplane.addComponent(new AirplaneRotationController(airplane, canvas, {}));
 
 // Initialize camera
 const camera = new Node();
-camera.addComponent(new Camera({ near: 1, far: 2000 }));
+camera.addComponent(new Camera({ near: 2, far: 7000 }));
 camera.addComponent(
   new Transform({
     translation: [0, 0.7, 5],
@@ -115,10 +117,35 @@ landscape.addComponent(
   })
 );
 
+const sky = new Node();
+sky.addComponent(
+  new Model({
+    primitives: [
+      new Primitive({
+        mesh: resources.skyMesh,
+        material: new Material({
+          baseTexture: new Texture({
+            image: resources.skyImage,
+            sampler: new Sampler(),
+          }),
+          //baseFactor: [0, 0, 0, 0.5], // Black base factor
+          uvScale: [0.005, 0.005], // Adjust to make the texture larger
+        }),
+      }),
+    ],
+  })
+);
+sky.addComponent(
+  new Transform({
+    scale: [1000, 1000, 1000],
+  })
+);
+
 // Create the scene
 const scene = new Node();
 scene.addChild(planeAndCamera);
 scene.addChild(landscape);
+scene.addChild(sky);
 
 // Create loops
 const loopPositions = [
