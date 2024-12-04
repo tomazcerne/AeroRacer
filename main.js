@@ -20,6 +20,8 @@ import { loadResources } from "engine/loaders/resources.js";
 import { AirplaneRotationController } from "./physics/AirplaneRotationController.js";
 import { AirplaneMotionController } from "./physics/AirplaneMotionController.js";
 import { LandscapeColisionDetector } from "./physics/LandscapeCollisionDetector.js";
+import { DirLitRenderer } from "./lights/DirLitRenderer.js";
+import { DirectionalLight } from "./lights/DirectionalLight.js";
 
 // Load resources
 const resources = await loadResources({
@@ -38,11 +40,8 @@ const resources = await loadResources({
 });
 
 const canvas = document.querySelector("canvas");
-const renderer = new UnlitRenderer(canvas);
+const renderer = new DirLitRenderer(canvas);
 await renderer.initialize();
-
-const resizeSystem = new ResizeSystem({ canvas, resize });
-const updateSystem = new UpdateSystem({ update, render });
 
 // Create airplane
 const airplane = new Node();
@@ -56,6 +55,9 @@ airplane.addComponent(
             image: resources.image,
             sampler: new Sampler(),
           }),
+          diffuse: 0.6,
+          specular: 0.7,
+          shininess: 0.5,
         }),
       }),
     ],
@@ -70,7 +72,7 @@ airplane.addComponent(new AirplaneRotationController(airplane, canvas, {}));
 
 // Initialize camera
 const camera = new Node();
-camera.addComponent(new Camera({ near: 2, far: 7000 }));
+camera.addComponent(new Camera({ near: 2, far: 3000 }));
 camera.addComponent(
   new Transform({
     translation: [0, 0.7, 5],
@@ -84,9 +86,6 @@ planeAndCamera.addComponent(
   new Transform({
     translation: [0, 400, 2500],
   })
-);
-planeAndCamera.addComponent(
-  new AirplaneMotionController(planeAndCamera, airplane, {})
 );
 
 // Create landscape with adjusted texture scaling
@@ -103,6 +102,10 @@ landscape.addComponent(
           }),
           baseFactor: [1.0, 1.0, 1.0, 1.0], // White base factor
           uvScale: [0.005, 0.005], // Adjust to make the texture larger
+          diffuse: 0.5,
+          specular: 0.05,
+          shininess: 0.1,
+          lightingMode: "phong",
         }),
       }),
     ],
@@ -128,8 +131,9 @@ sky.addComponent(
             image: resources.skyImage,
             sampler: new Sampler(),
           }),
-          //baseFactor: [0, 0, 0, 0.5], // Black base factor
+          baseFactor: [1.0, 1.0, 1.0, 1.0], // Black base factor
           uvScale: [0.005, 0.005], // Adjust to make the texture larger
+          lightingMode: "unlit",
         }),
       }),
     ],
@@ -137,7 +141,7 @@ sky.addComponent(
 );
 sky.addComponent(
   new Transform({
-    scale: [1000, 1000, 1000],
+    scale: [750, 750, 750],
   })
 );
 
@@ -175,6 +179,9 @@ for (let i = 0; i < loopPositions.length; i++) {
                 image: resources.finalLoopImage,
                 sampler: new Sampler(),
               }),
+              diffuse: 0.6,
+              specular: 0.9,
+              shininess: 1.0,
             }),
           }),
         ],
@@ -191,6 +198,9 @@ for (let i = 0; i < loopPositions.length; i++) {
                 image: resources.loopImage,
                 sampler: new Sampler(),
               }),
+              diffuse: 0.6,
+              specular: 0.9,
+              shininess: 1.0,
             }),
           }),
         ],
@@ -212,7 +222,20 @@ for (let i = 0; i < loopPositions.length; i++) {
   loops.push(loop);
 }
 
+planeAndCamera.addComponent(
+  new AirplaneMotionController(planeAndCamera, airplane, sky, {})
+);
 planeAndCamera.addComponent(new LandscapeColisionDetector(planeAndCamera, loopPositions));
+
+const light = new Node();
+light.addComponent(
+  new DirectionalLight({
+    color: [255, 244, 214],
+    intensity: 1.0,
+    direction: [0.5, -1, 0],
+  })
+);
+scene.addChild(light);
 
 function update(time, dt) {
   scene.traverse((node) => {

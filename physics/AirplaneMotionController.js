@@ -8,6 +8,7 @@ export class AirplaneMotionController {
   constructor(
     planeAndCamera,
     airplane,
+    sky,
     {
       rotationSpeed = {
         pitch: 1.5,
@@ -20,6 +21,7 @@ export class AirplaneMotionController {
   ) {
     this.planeAndCamera = planeAndCamera;
     this.airplane = airplane;
+    this.sky = sky;
     this.rotationSpeed = rotationSpeed;
     this.airspeed = airspeed;
     this.directionVectors = {
@@ -162,6 +164,11 @@ export class AirplaneMotionController {
     transform.translation = transform.translation.map((current, i) => {
       return current + translationVector[i];
     });
+    
+    // move the sky dome along with the airplane
+    const skyTransform = this.sky.getComponentOfType(Transform);
+    skyTransform.translation[0] = transform.translation[0];
+    skyTransform.translation[2] = transform.translation[2];
 
     this.checkBounds(transform.translation);
 
