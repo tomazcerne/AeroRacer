@@ -22,6 +22,8 @@ import { ColisionDetector } from "./physics/CollisionDetector.js";
 import { DirLitRenderer } from "./lights/DirLitRenderer.js";
 import { DirectionalLight } from "./lights/DirectionalLight.js";
 
+var gameRunning = { value: false };
+
 // Load resources
 const resources = await loadResources({
   mesh: new URL("./models/airplane/plane.obj", import.meta.url),
@@ -32,7 +34,10 @@ const resources = await loadResources({
     import.meta.url
   ),
   skyMesh: new URL("models/landscape/skyDome.obj", import.meta.url),
-  skyImage: new URL("models/landscape/Ground062S_1K-JPG_Color.jpg", import.meta.url),
+  skyImage: new URL(
+    "models/landscape/Ground062S_1K-JPG_Color.jpg",
+    import.meta.url
+  ),
   loopMesh: new URL("models/loop/loop.obj", import.meta.url),
   loopImage: new URL("models/loop/yellowOrangeColor.jpg", import.meta.url),
   finalLoopImage: new URL("models/loop/blue.jpg", import.meta.url),
@@ -222,9 +227,11 @@ for (let i = 0; i < loopPositions.length; i++) {
 }
 
 planeAndCamera.addComponent(
-  new AirplaneMotionController(planeAndCamera, airplane, sky, {})
+  new AirplaneMotionController(planeAndCamera, airplane, sky, gameRunning, {})
 );
-planeAndCamera.addComponent(new ColisionDetector(planeAndCamera, loopPositions));
+planeAndCamera.addComponent(
+  new ColisionDetector(planeAndCamera, loopPositions, gameRunning)
+);
 
 const light = new Node();
 light.addComponent(
@@ -237,6 +244,9 @@ light.addComponent(
 scene.addChild(light);
 
 function update(time, dt) {
+  if (!gameRunning.value) {
+    return;
+  }
   scene.traverse((node) => {
     for (const component of node.components) {
       component.update?.(time, dt);
@@ -255,6 +265,7 @@ function resize({ displaySize: { width, height } }) {
 const startButton = document.querySelector("#startButton");
 
 const doStart = () => {
+  gameRunning.value = true;
   document.removeEventListener("keydown", handleKeydown);
   const startScreen = document.querySelector("#startScreen");
   const gameScreen = document.querySelector("#gameScreen");
@@ -262,7 +273,7 @@ const doStart = () => {
   gameScreen.style.display = "block";
   new ResizeSystem({ canvas, resize }).start();
   new UpdateSystem({ update, render }).start();
-}
+};
 
 function handleKeydown(event) {
   if (event.code === "Space") {

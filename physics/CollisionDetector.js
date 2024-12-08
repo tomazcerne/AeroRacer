@@ -1,7 +1,7 @@
 import { Transform } from "../engine/core/Transform.js";
 
 export class ColisionDetector {
-  constructor(airplaneAndCamera, loops) {
+  constructor(airplaneAndCamera, loops, gameRunning) {
     this.airplaneAndCamera = airplaneAndCamera;
     this.heightMap = [];
     this.heightCorrectionFactor = 1.75; // Correction factor for detected height
@@ -41,6 +41,7 @@ export class ColisionDetector {
       volume: 0.4
     });
     this.playing = false;
+    this.gameRunning = gameRunning;
 
     image.onload = () => {
       canvas.width = image.width;
@@ -89,6 +90,7 @@ export class ColisionDetector {
 
     // Check for collision
     if (height < 0) {
+      this.gameRunning.value = false;
       if(!this.crashed) {
         this.crash.play();
         this.backgroundMusic.stop();

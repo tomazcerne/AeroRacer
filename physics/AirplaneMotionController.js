@@ -9,6 +9,7 @@ export class AirplaneMotionController {
     planeAndCamera,
     airplane,
     sky,
+    gameRunning,
     {
       rotationSpeed = {
         pitch: 1.5,
@@ -23,7 +24,12 @@ export class AirplaneMotionController {
     this.airplane = airplane;
     this.sky = sky;
     this.rotationSpeed = rotationSpeed;
+    this.minAirSpeed = 40;
     this.airspeed = airspeed;
+    this.maxAirSpeed = 200;
+    this.acceleration = 5;
+    this.speedUp = false;
+    this.speedDown = false;
     this.directionVectors = {
       axisX: [-1, 0, 0],
       axisY: [0, 1, 0],
@@ -36,6 +42,23 @@ export class AirplaneMotionController {
     };
     this.rollImpact = 0;
     this.rollImpactFactor = rollImpactFactor;
+    this.gameRunning = gameRunning;
+    document.addEventListener("keydown", (e) => {
+      if (e.code === "ArrowUp") {
+        this.speedUp = true;
+      }
+      if (e.code === "ArrowDown") {
+        this.speedDown = true;
+      }
+    });
+    document.addEventListener("keyup", (e) => {
+      if (e.code === "ArrowUp") {
+        this.speedUp = false;
+      }
+      if (e.code === "ArrowDown") {
+        this.speedDown = false;
+      }
+    });
   }
 
   getAirplaneDirection() {
@@ -65,6 +88,9 @@ export class AirplaneMotionController {
     y.innerText = Math.round(translation[1]);
     const z = displayWindow.querySelector("#Z span");
     z.innerText = Math.round(translation[2]);
+
+    const airspeedData = displayWindow.querySelector("#airspeed span");
+    airspeedData.innerText = Math.round(this.airspeed * 3.6); // from m/s to km/h
   }
 
   updateDirectionVectors(rotation) {
@@ -127,12 +153,22 @@ export class AirplaneMotionController {
   checkBounds(translation) {
     const [x, y, z] = translation;
     if (x < -2500 || x > 2500 || z < -2500 || z > 2500) {
+      this.gameRunning.value = false;
       const gameScreen = document.querySelector("#gameScreen");
       const endScreen = document.querySelector("#endScreen");
       const message = endScreen.querySelector(".message");
       message.innerText = "You went out of bounds!";
       gameScreen.style.display = "none";
       endScreen.style.display = "block";
+    }
+  }
+
+  updateSpeed(t, dt) {
+    if (this.speedUp) {
+      this.airspeed = Math.min(this.maxAirSpeed, this.airspeed + this.acceleration * dt);
+    }
+    if (this.speedDown) {
+      this.airspeed = Math.max(this.minAirSpeed, this.airspeed - this.acceleration * dt);
     }
   }
 
@@ -171,8 +207,10 @@ export class AirplaneMotionController {
     skyTransform.translation[2] = transform.translation[2];
 
     this.checkBounds(transform.translation);
+    this.updateSpeed(t, dt);
 
     this.updatePosition();
     this.displayPosition();
+
   }
 }
