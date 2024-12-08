@@ -14,11 +14,12 @@
 
 #startScreen h1 {
   text-align: center;
-  font-size: 40px;
+  font-size: 45px;
+  color: #124fa0;
 }
 #startScreen p {
   text-align: center;
-  font-size: large;
+  font-size: 20px;
 }
 
 #positionDisplay {
@@ -35,7 +36,7 @@
   height: 350px;
 }
 
-#instructions {
+.instruction {
   display: flex;
   justify-content: center;
 }
@@ -63,6 +64,14 @@
   font-size: 18px;
   box-shadow: 1px 1px 3px rgba(0, 0, 0, 0.2);
 }
+.keyDescription {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 40px;
+  margin: 3px;
+  font-size: 20px;
+}
 .red {
   color: red;
   border: 2px solid red;
@@ -78,16 +87,18 @@
 
 #startButton {
   display: block;
-  margin: 20px auto;
-  padding: 10px 30px;
-  border: solid gray 1px;
-  border-radius: 10px;
+  margin: 40px auto 20px auto;
+  padding: 10px 40px;
   font-size: 20px;
-  background-color: #f5f5f5;
+  cursor: pointer;
+  color: white;
+  background: #124fa0;
+  border: solid 2px transparent;
+  border-radius: 10px;
+  box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;
 }
 #startButton:hover {
-  background-color: #e5e5e5;
-  cursor: pointer;
+  background: #165ebd;
 }
 
 #gameOver {
@@ -133,10 +144,10 @@
   position: absolute;
   top: 5px;
   right: 5px;
-  width: 33%; 
+  width: 33%;
   height: auto;
-  aspect-ratio: 10 / 1; 
+  aspect-ratio: 10 / 1;
   z-index: 10;
-  background-color: transparent; 
-  border: none; 
+  background-color: transparent;
+  border: none;
 }
