@@ -41,7 +41,7 @@
           </div>
         </div>
       </div>
-      <button id="startButton">Start the game</button>
+      <button id="startButton">press space to start the game</button>
     </div>
     <div id="gameScreen">
       <div class="fullscreen no-touch pixelated">
@@ -52,10 +52,13 @@
         <div id="pitch">Pitch: <span>0</span>&deg;</div>
         <div id="roll">Roll: <span>0</span>&deg;</div>
         <div id="yaw">Yaw: <span>0</span>&deg;</div>
-        <div id="X">X: <span>0</span></div>
-        <div id="Y">Y: <span>0</span></div>
-        <div id="Z">Z: <span>0</span></div>
-        <div id="ground">Ground: <span>0</span></div>
+        <div>
+          Coords: (
+          <span id="X"> <span>0</span></span> ,
+          <span id="Z"> <span>0</span></span> )
+        </div>
+        <div id="Y">Altitude: <span>0</span>m</div>
+        <div id="ground">Ground: <span>0</span>m</div>
       </div>
     </div>
     <div id="endScreen">

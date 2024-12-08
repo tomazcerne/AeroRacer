@@ -40,8 +40,7 @@ export class ColisionDetector {
       loop: true,
       volume: 0.4
     });
-    this.backgroundMusic.play();
-  
+    this.playing = false;
 
     image.onload = () => {
       canvas.width = image.width;
@@ -62,6 +61,10 @@ export class ColisionDetector {
   }
 
   update(t, dt) {
+    if (!this.playing) {
+      this.playing = true;
+      this.backgroundMusic.play();
+    }
     const airplane = this.airplaneAndCamera;
     const transform = airplane.getComponentOfType(Transform);
     const translation = transform.translation;

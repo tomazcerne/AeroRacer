@@ -1,7 +1,6 @@
 import { ResizeSystem } from "./engine/systems/ResizeSystem.js";
 import { UpdateSystem } from "./engine/systems/UpdateSystem.js";
 
-import { UnlitRenderer } from "./engine/renderers/UnlitRenderer.js";
 import { mat4, quat } from "glm";
 
 import {
@@ -254,11 +253,24 @@ function resize({ displaySize: { width, height } }) {
 }
 
 const startButton = document.querySelector("#startButton");
-startButton.addEventListener("click", () => {
+
+const doStart = () => {
+  document.removeEventListener("keydown", handleKeydown);
   const startScreen = document.querySelector("#startScreen");
   const gameScreen = document.querySelector("#gameScreen");
   startScreen.style.display = "none";
   gameScreen.style.display = "block";
   new ResizeSystem({ canvas, resize }).start();
   new UpdateSystem({ update, render }).start();
+}
+
+function handleKeydown(event) {
+  if (event.code === "Space") {
+    doStart();
+  }
+}
+
+startButton.addEventListener("click", () => {
+  doStart();
 });
+document.addEventListener("keydown", handleKeydown);
