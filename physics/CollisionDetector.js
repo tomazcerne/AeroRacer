@@ -1,6 +1,6 @@
 import { Transform } from "../engine/core/Transform.js";
 
-export class LandscapeColisionDetector {
+export class ColisionDetector {
   constructor(airplaneAndCamera, loops) {
     this.airplaneAndCamera = airplaneAndCamera;
     this.heightMap = [];
@@ -19,6 +19,29 @@ export class LandscapeColisionDetector {
     this.currentErr = Number.MAX_VALUE
     this.positionPrev = this.airplaneAndCamera.getComponentOfType(Transform).translation;
     this.positionNow = this.airplaneAndCamera.getComponentOfType(Transform).translation;
+
+    this.hit = new Howl({
+      src: ['./sounds/hit.mp3'],
+      loop: false
+    });
+    this.miss = new Howl({
+      src: ['./sounds/miss.mp3'],
+      loop: false,
+      volume: 1.6
+    });
+    this.crashed = false;
+    this.crash = new Howl({
+      src: ['./sounds/crash.mp3'],
+      loop: false,
+      volume: 0.85
+    });
+    this.backgroundMusic = new Howl({
+      src: ['./sounds/background.mp3'],
+      loop: true,
+      volume: 0.4
+    });
+    this.backgroundMusic.play();
+  
 
     image.onload = () => {
       canvas.width = image.width;
@@ -63,6 +86,11 @@ export class LandscapeColisionDetector {
 
     // Check for collision
     if (height < 0) {
+      if(!this.crashed) {
+        this.crash.play();
+        this.backgroundMusic.stop();
+        this.crashed = true;
+      }
       const gameScreen = document.querySelector("#gameScreen");
       const endScreen = document.querySelector("#endScreen");
       const message = endScreen.querySelector(".message");
@@ -72,6 +100,7 @@ export class LandscapeColisionDetector {
     }
 
     // ---------------------------------------------------
+
     // LOOP COLLISION DETECTION
     // Utility function to convert degrees to radians
     function toRadians(degrees) {
@@ -114,12 +143,14 @@ export class LandscapeColisionDetector {
       }
       if (hasCrossedPlane(prevPos, currPos, loop)) {
         if (isWithinHoop(currPos, loop)) {
+          this.hit.play();
           console.log("Crossed and passed through the hoop at", loop);
           this.completed[this.nextLoop] = 1;
           console.log(this.completed)
           this.nextLoop += 1;
           console.log(this.nextLoop)
         } else {
+          this.miss.play();
           console.log("Crossed but missed the hoop at", loop);
           this.completed[this.nextLoop] = -1;
           console.log(this.completed)
@@ -162,7 +193,7 @@ export class LandscapeColisionDetector {
         if (this.nextLoop >= this.loops.length && status === 1) {
           scoreboardCtx.fillStyle = "#0000ff"; // Blue for success in the last loop
         } else if (status === 1) {
-          scoreboardCtx.fillStyle = "#ffd60a"; // Yellow for success
+          scoreboardCtx.fillStyle = "#e8b923"; // Yellow for success
         } else if (status === -1) {
           scoreboardCtx.fillStyle = "#ff3f34"; // Red for failure
         } else {

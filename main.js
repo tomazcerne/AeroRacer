@@ -19,7 +19,7 @@ import { loadResources } from "engine/loaders/resources.js";
 
 import { AirplaneRotationController } from "./physics/AirplaneRotationController.js";
 import { AirplaneMotionController } from "./physics/AirplaneMotionController.js";
-import { LandscapeColisionDetector } from "./physics/LandscapeCollisionDetector.js";
+import { ColisionDetector } from "./physics/CollisionDetector.js";
 import { DirLitRenderer } from "./lights/DirLitRenderer.js";
 import { DirectionalLight } from "./lights/DirectionalLight.js";
 
@@ -225,7 +225,7 @@ for (let i = 0; i < loopPositions.length; i++) {
 planeAndCamera.addComponent(
   new AirplaneMotionController(planeAndCamera, airplane, sky, {})
 );
-planeAndCamera.addComponent(new LandscapeColisionDetector(planeAndCamera, loopPositions));
+planeAndCamera.addComponent(new ColisionDetector(planeAndCamera, loopPositions));
 
 const light = new Node();
 light.addComponent(
