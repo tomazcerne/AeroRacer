@@ -94,7 +94,7 @@ public class PlaneController : MonoBehaviour
             heightAboveGround = transform.position.y; // Use global Y-coordinate as a fallback
         }
 
-        if (heightAboveGround < 10f) // Check if height above ground is less than 10 meters
+        if (heightAboveGround < 1f) // Check if height above ground is less than 10 meters
         {
             Debug.Log($"Game Over: Plane is too close to the ground (Height: {heightAboveGround:F2} m).");
             EndGame();
