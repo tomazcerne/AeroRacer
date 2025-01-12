@@ -59,7 +59,6 @@ public class PlaneController : MonoBehaviour
         UpdateTopLeftHud();
         UpdateTopRightHud();
         UpdateSound();
-        CheckGroundCollision();
     }
 
     private void FixedUpdate()
@@ -80,25 +79,10 @@ public class PlaneController : MonoBehaviour
         rb.AddForce(rb.transform.up * rb.linearVelocity.magnitude * lift);
     }
 
-    private void CheckGroundCollision()
+    private void OnCollisionEnter(Collision collision)
     {
-        RaycastHit hit;
-        float heightAboveGround;
-
-        if (Physics.Raycast(transform.position, Vector3.down, out hit))
-        {
-            heightAboveGround = hit.distance; // Calculate the height above ground using the raycast
-        }
-        else
-        {
-            heightAboveGround = transform.position.y; // Use global Y-coordinate as a fallback
-        }
-
-        if (heightAboveGround < 1f) // Check if height above ground is less than 10 meters
-        {
-            Debug.Log($"Game Over: Plane is too close to the ground (Height: {heightAboveGround:F2} m).");
-            EndGame();
-        }
+        Debug.Log($"Game Over: Plane collided with {collision.gameObject.name}.");
+        EndGame();
     }
 
 private void EndGame()
