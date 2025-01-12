@@ -1,2 +1,14 @@
 fileFormatVersion: 2
 guid: 32d718835845d5d43bc457870d486ad7
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences:
+  - topLeftHud: {instanceID: 0}
+  - topRightHud: {instanceID: 0}
+  - gameOverScreen: {instanceID: 0}
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

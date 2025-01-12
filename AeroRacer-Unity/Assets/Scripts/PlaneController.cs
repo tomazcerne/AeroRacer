@@ -25,12 +25,15 @@ public class PlaneController : MonoBehaviour
     AudioSource engineSound;
     [SerializeField] TextMeshProUGUI topLeftHud;
     [SerializeField] TextMeshProUGUI topRightHud;
+    [SerializeField] GameObject gameOverScreen; // Reference to a Game Over UI panel
 
     private void Awake()
     {
         rb = GetComponent<Rigidbody>();
         engineSound = GetComponent<AudioSource>();
     }
+
+
 
     private void HandleInput()
     {
@@ -56,6 +59,7 @@ public class PlaneController : MonoBehaviour
         UpdateTopLeftHud();
         UpdateTopRightHud();
         UpdateSound();
+        CheckGroundCollision();
     }
 
     private void FixedUpdate()
@@ -75,6 +79,46 @@ public class PlaneController : MonoBehaviour
 
         rb.AddForce(rb.transform.up * rb.linearVelocity.magnitude * lift);
     }
+
+    private void CheckGroundCollision()
+    {
+        RaycastHit hit;
+        float heightAboveGround;
+
+        if (Physics.Raycast(transform.position, Vector3.down, out hit))
+        {
+            heightAboveGround = hit.distance; // Calculate the height above ground using the raycast
+        }
+        else
+        {
+            heightAboveGround = transform.position.y; // Use global Y-coordinate as a fallback
+        }
+
+        if (heightAboveGround < 10f) // Check if height above ground is less than 10 meters
+        {
+            Debug.Log($"Game Over: Plane is too close to the ground (Height: {heightAboveGround:F2} m).");
+            EndGame();
+        }
+    }
+
+private void EndGame()
+{
+    Debug.Log("Activating Game Over Screen.");
+
+    rb.isKinematic = true; // Stop physics simulation for the plane
+    engineSound.Stop();    // Stop engine sound
+    
+    if (gameOverScreen != null)
+    {
+        gameOverScreen.SetActive(true); // Show the Game Over screen
+    }
+    else
+    {
+        Debug.LogWarning("Game Over Screen is not assigned in the Inspector.");
+    }
+    
+    Time.timeScale = 0;    // Pause the game
+}
 
     private void UpdatePitchRollYawAngles()
     {
@@ -118,21 +162,22 @@ public class PlaneController : MonoBehaviour
 
     private void UpdateTopLeftHud()
     {
-        topLeftHud.text = $"Airspeed: {(rb.linearVelocity.magnitude * 3.6f).ToString("F0")} km/h\n";
-        topLeftHud.text += $"Altitude: {transform.position.y.ToString("F0")} m\n";
-        topLeftHud.text += $"Throttle: {throttle.ToString("F0")}%";
+        topLeftHud.text = $"Airspeed: {(rb.linearVelocity.magnitude * 3.6f):F0} km/h\n";
+        topLeftHud.text += $"Altitude: {transform.position.y:F0} m\n";
+        topLeftHud.text += $"Throttle: {throttle:F0}%";
     }
 
     private void UpdateTopRightHud()
     {
-        topRightHud.text = $"Pitch: {pitchAngle.ToString("F0")}°\n";
-        topRightHud.text += $"Roll: {rollAngle.ToString("F0")}°\n";
-        topRightHud.text += $"Yaw: {yawAngle.ToString("F0")}°";
+        topRightHud.text = $"Pitch: {pitchAngle:F0}°\n";
+        topRightHud.text += $"Roll: {rollAngle:F0}°\n";
+        topRightHud.text += $"Yaw: {yawAngle:F0}°";
     }
 
     private void UpdateSound()
     {
         engineSound.volume = throttle * 0.01f;
     }
+    
 
 }
